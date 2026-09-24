@@ -1,0 +1,62 @@
+name: Release Hoard
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  linux-x86_64:
+    runs-on: ubuntu-24.04
+    env:
+      HOARD_GITHUB_REPOSITORY: ${{ github.repository }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential pkg-config zstd \
+            libwayland-dev libxkbcommon-dev libgl1-mesa-dev \
+            libx11-dev libxcursor-dev libxi-dev libxrandr-dev libxcb1-dev \
+            libssl-dev libdbus-1-dev
+
+      - name: Install Rust stable
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+
+      - name: Validate tag matches Cargo version
+        shell: bash
+        run: |
+          VERSION="$(sed -n 's/^version = "\([^"]*\)"/\1/p' Cargo.toml | head -1)"
+          test "${GITHUB_REF_NAME}" = "v${VERSION}" || {
+            echo "Tag ${GITHUB_REF_NAME} does not match Cargo.toml version ${VERSION}" >&2
+            exit 1
+          }
+
+      - name: Build release bundle
+        run: ./scripts/make-release.sh
+
+      - name: Publish GitHub Release
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          ASSETS=(
+            "dist/hoard-${VERSION}-x86_64-unknown-linux-gnu.tar.zst"
+            "dist/hoard-${VERSION}-x86_64-unknown-linux-gnu.tar.zst.sha256"
+          )
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" "${ASSETS[@]}" --repo "$GITHUB_REPOSITORY" --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" "${ASSETS[@]}" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "Hoard ${VERSION}" \
+              --generate-notes
+          fi

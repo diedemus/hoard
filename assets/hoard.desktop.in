@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Hoard
+Comment=Themeable file manager
+Exec=@BINDIR@/hoard %U
+Icon=hoard
+Terminal=false
+Categories=System;FileManager;Utility;Core;
+MimeType=inode/directory;
+StartupNotify=true
+StartupWMClass=hoard
+Keywords=files;folders;explorer;manager;hoard;

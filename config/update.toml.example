@@ -1,0 +1,6 @@
+enabled = true
+provider = "github"
+repository = "diedemus/hoard"
+manifest_url = ""
+channel = "stable"
+check_interval_hours = 24

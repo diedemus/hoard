@@ -1,0 +1,13 @@
+show_hidden = false
+default_view = "details"
+thumbnails = true
+thumbnail_size = 112
+show_preview = true
+toolbar_labels = true
+window_opacity = 1.0
+confirm_permanent_delete = true
+terminal = "alacritty"
+sort_column = "name"
+sort_ascending = true
+
+remember_tabs = true

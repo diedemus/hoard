@@ -1,0 +1,20 @@
+[colors]
+background = "#080B12EE"
+panel = "#0D111BED"
+panel_alt = "#141827E8"
+sidebar = "#070A11FF"
+foreground = "#EEEFFC"
+muted = "#969AB5"
+accent = "#A44CFF"
+accent_soft = "#5E2D8CAA"
+accent_green = "#39FF88"
+selection = "#55287ED9"
+selection_text = "#FFFFFF"
+border = "#663A8F"
+danger = "#FF5263"
+
+[metrics]
+rounding = 9.0
+row_height = 36.0
+sidebar_width = 240.0
+preview_width = 300.0
