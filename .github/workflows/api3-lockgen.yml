@@ -13,6 +13,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+      - name: Use Git CLI for public framework dependency
+        run: |
+          mkdir -p "$HOME/.cargo"
+          printf '[net]\ngit-fetch-with-cli = true\n' > "$HOME/.cargo/config.toml"
       - name: Generate lockfile
         working-directory: api3-lockgen
         run: cargo generate-lockfile
