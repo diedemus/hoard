@@ -25,7 +25,7 @@ jobs:
         run: |
           grep -F 'name = "stable-app-core"' Cargo.lock
           grep -F 'name = "stable-ui"' Cargo.lock
-          grep -F '4cca06fc2197c6362ee58e7f678193a11f84be2b' Cargo.lock
+          grep -F 'da2d26861512905640a5097325f65f2c75e08dd1' Cargo.lock
       - uses: actions/upload-artifact@v4
         with:
           name: api3-cargo-lock
