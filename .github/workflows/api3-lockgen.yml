@@ -1,0 +1,28 @@
+name: API3 Lockgen
+on:
+  push:
+    branches:
+      - api3-lockgen
+
+permissions:
+  contents: read
+
+jobs:
+  lock:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Generate lockfile
+        working-directory: api3-lockgen
+        run: cargo generate-lockfile
+      - name: Verify framework core provenance
+        working-directory: api3-lockgen
+        run: |
+          grep -F 'name = "stable-app-core"' Cargo.lock
+          grep -F 'name = "stable-ui"' Cargo.lock
+          grep -F '4cca06fc2197c6362ee58e7f678193a11f84be2b' Cargo.lock
+      - uses: actions/upload-artifact@v4
+        with:
+          name: api3-cargo-lock
+          path: api3-lockgen/Cargo.lock
