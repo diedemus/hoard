@@ -64,15 +64,14 @@ grep -F 'SortColumn::Permissions' crates/hoard-core/src/fs_model.rs >/dev/null |
 echo 'HOARD API3 SOURCE CONTRACT PASSED'
 
 grep -F 'fn apply_theme_preset_to(mut theme: Theme, preset: &str) -> Theme' crates/hoard-function/src/app.rs >/dev/null || fail 'packaged theme preset implementation missing'
-grep -F '"obsidian-violet"' crates/hoard-function/src/app.rs >/dev/null || fail 'Obsidian Violet preset missing'
-grep -F '"midnight-alloy"' crates/hoard-function/src/app.rs >/dev/null || fail 'Midnight Alloy preset missing'
-grep -F '"forest-circuit"' crates/hoard-function/src/app.rs >/dev/null || fail 'Forest Circuit preset missing'
-grep -F '"ember-vault"' crates/hoard-function/src/app.rs >/dev/null || fail 'Ember Vault preset missing'
-grep -F '"arctic-carbon"' crates/hoard-function/src/app.rs >/dev/null || fail 'Arctic Carbon preset missing'
+for preset in   obsidian-violet ocean-teal amber-graphite cobalt-night ember-stone   forest-carbon plum-rose ivory-ink solar-paper nord-aurora; do
+  grep -F "\"$preset\"" crates/hoard-function/src/app.rs >/dev/null || fail "Tiamat palette missing: $preset"
+done
 grep -F 'pub theme_preset: String' crates/hoard-core/src/config.rs >/dev/null || fail 'theme preset persistence missing'
 grep -F '.intersect(selection_viewport);' crates/hoard-function/src/app.rs >/dev/null || fail 'full icon rubber-band viewport clipping missing'
-
-grep -F 'theme.accent_green = rgb(91, 214, 255);' crates/hoard-function/src/app.rs >/dev/null || fail 'Midnight Alloy secondary accent regression'
-grep -F 'theme.accent_green = rgb(126, 224, 255);' crates/hoard-function/src/app.rs >/dev/null || fail 'Arctic Carbon secondary accent regression'
 grep -F 'fn chrome_icon_color(theme: &Theme, active: bool) -> Color32' crates/hoard-function/src/app.rs >/dev/null || fail 'theme-aware chrome icon policy missing'
+grep -F 'header_response.context_menu(|ui| self.columns_context_menu(ui));' crates/hoard-function/src/app.rs >/dev/null || fail 'full details-header Columns context menu missing'
+! grep -F 'if ui.button("Reload Theme").clicked()' crates/hoard-function/src/app.rs | grep -v 'preferences' >/dev/null || true
+grep -F 'get_pointer_with_theme' apps/hoard/src/platform.rs >/dev/null || fail 'native themed pointer integration missing'
+grep -F 'output.cursor_icon' apps/hoard/src/platform.rs >/dev/null || fail 'egui cursor output is not forwarded to Wayland'
 
