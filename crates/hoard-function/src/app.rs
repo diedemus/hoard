@@ -3026,8 +3026,17 @@ impl HoardApp {
         self.enqueue_operation(QueuedOperation::Trash(vec![path.to_path_buf()]));
     }
 
-    fn restore_from_trash(&mut self, path: &Path) {
-        self.enqueue_operation(QueuedOperation::Restore(vec![path.to_path_buf()]));
+    fn restore_selected_from_trash(&mut self) {
+        let paths: Vec<PathBuf> = self
+            .selected_items()
+            .into_iter()
+            .filter(|path| fs_model::is_in_trash(path))
+            .collect();
+        if paths.is_empty() {
+            self.status = "No selected Trash items to restore".into();
+            return;
+        }
+        self.enqueue_operation(QueuedOperation::Restore(paths));
     }
 
     fn paste_into(&mut self, dest: &Path) {
@@ -5485,8 +5494,13 @@ impl HoardApp {
 
         ui.separator();
         if is_trash {
-            if ui.button("Restore").clicked() {
-                self.restore_from_trash(&entry.path);
+            let restore_label = if selection_count > 1 {
+                "Restore Selection"
+            } else {
+                "Restore"
+            };
+            if ui.button(restore_label).clicked() {
+                self.restore_selected_from_trash();
                 ui.close();
             }
             if ui
@@ -5825,7 +5839,7 @@ impl HoardApp {
                             )
                             .clicked()
                             {
-                                self.restore_from_trash(&path);
+                                self.restore_selected_from_trash();
                             }
                         } else if is_dir {
                             let pinned = self.pinned.contains(&path);
