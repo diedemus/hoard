@@ -4919,6 +4919,8 @@ impl HoardApp {
             .map(|t| t.scroll_y)
             .unwrap_or(0.0);
         let viewport_height = ui.available_height();
+        let viewport_width = ui.available_width();
+        let icon_viewport = ui.clip_rect();
         let scroll_output = egui::ScrollArea::vertical()
             .id_salt("icon-grid-scroll")
             .vertical_scroll_offset(saved_scroll)
@@ -4927,7 +4929,7 @@ impl HoardApp {
                 // Use one coordinate space only: the actual scroll-content rectangle and the
                 // actual UI clip rectangle. This avoids viewport/content-origin drift while
                 // retaining visible-row culling for large directories.
-                let available = ui.available_width().max(card_w + grid_pad_x * 2.0);
+                let available = viewport_width.max(card_w + grid_pad_x * 2.0);
                 let usable = (available - grid_pad_x * 2.0).max(card_w);
                 let columns = (((usable + col_gap) / (card_w + col_gap)).floor() as usize).max(1);
                 let rows = item_count.div_ceil(columns);
@@ -4942,7 +4944,7 @@ impl HoardApp {
                 // selection surface. Card geometry still uses content_rect,
                 // but whitespace to the right/below the grid must not become
                 // a dead zone.
-                let selection_viewport = ui.clip_rect();
+                let selection_viewport = icon_viewport.intersect(ui.clip_rect());
                 let grid_clip = selection_viewport.intersect(content_rect);
 
                 if selection_viewport.width() <= 0.0 || selection_viewport.height() <= 0.0 {
@@ -5282,11 +5284,15 @@ impl HoardApp {
                     .intersect(selection_viewport);
                     if selection_rect.is_positive() {
                         let painter = ui.painter().with_clip_rect(selection_viewport);
-                        painter.rect_filled(selection_rect, 3.0, self.theme.accent_soft);
+                        painter.rect_filled(
+                            selection_rect,
+                            3.0,
+                            self.theme.accent_soft.linear_multiply(0.28),
+                        );
                         painter.rect_stroke(
                             selection_rect,
                             3.0,
-                            Stroke::new(1.0, self.theme.accent_green),
+                            Stroke::new(1.0, self.theme.accent),
                             egui::StrokeKind::Middle,
                         );
                     }
