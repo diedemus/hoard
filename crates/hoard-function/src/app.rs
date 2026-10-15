@@ -6196,9 +6196,6 @@ impl HoardApp {
                                 let p = config::theme_path().to_string_lossy().to_string();
                                 let _ = Self::spawn_quiet("xdg-open", &[&p]);
                             }
-                            if ui.button("Reload Theme").clicked() {
-                                self.reload_theme_with_opacity(ctx);
-                            }
                             if ui.button(RichText::new("Reset Settings to Defaults").color(self.theme.danger)).clicked() {
                                 match config::reset_settings() {
                                     Ok(defaults) => {
