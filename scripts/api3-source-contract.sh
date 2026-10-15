@@ -46,6 +46,8 @@ grep -F 'fn select_all_visible(&mut self)' crates/hoard-function/src/app.rs >/de
 grep -F 'struct RubberBandSelection' crates/hoard-function/src/app.rs >/dev/null || fail 'rubber-band selection state missing'
 grep -F 'apply_rubber_band_selection' crates/hoard-function/src/app.rs >/dev/null || fail 'rubber-band selection application missing'
 grep -F 'fn selection_context_menu(&mut self, ui: &mut egui::Ui)' crates/hoard-function/src/app.rs >/dev/null || fail 'selection context-menu helper missing'
+grep -F 'fn restore_selected_from_trash(&mut self)' crates/hoard-function/src/app.rs >/dev/null || fail 'multi-selection Trash restore helper missing'
+grep -F 'QueuedOperation::Restore(paths)' crates/hoard-function/src/app.rs >/dev/null || fail 'multi-selection Trash restore operation missing'
 grep -F 'ui.button("Invert Selection")' crates/hoard-function/src/app.rs >/dev/null || fail 'invert-selection context action missing'
 grep -F 'ui.button("Clear Selection")' crates/hoard-function/src/app.rs >/dev/null || fail 'clear-selection context action missing'
 grep -F 'let col_gap = 22.0_f32;' crates/hoard-function/src/app.rs >/dev/null || fail 'icon-grid selection whitespace regression'
