@@ -2769,6 +2769,8 @@ impl HoardApp {
             f5,
             esc,
             tab_key,
+            mouse_back,
+            mouse_forward,
         ) = ctx.input(|i| {
             (
                 i.modifiers.ctrl,
@@ -2797,6 +2799,8 @@ impl HoardApp {
                 i.key_pressed(egui::Key::F5),
                 i.key_pressed(egui::Key::Escape),
                 i.key_pressed(egui::Key::Tab),
+                i.pointer.button_pressed(egui::PointerButton::Extra1),
+                i.pointer.button_pressed(egui::PointerButton::Extra2),
             )
         });
         let text_focus = ctx.memory(|memory| memory.focused().is_some());
@@ -2938,10 +2942,10 @@ impl HoardApp {
                 }
             }
         }
-        if alt && left {
+        if (alt && left) || mouse_back {
             self.go_back();
         }
-        if alt && right {
+        if (alt && right) || mouse_forward {
             self.go_forward();
         }
         if f5 {
