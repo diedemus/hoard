@@ -59,6 +59,7 @@ grep -F 'let content_height = grid_height.max(viewport_height);' crates/hoard-fu
 grep -F 'let viewport_width = ui.available_width();' crates/hoard-function/src/app.rs >/dev/null || fail 'outer icon-pane width capture missing'
 grep -F 'let icon_viewport = ui.clip_rect();' crates/hoard-function/src/app.rs >/dev/null || fail 'outer icon-pane viewport capture missing'
 grep -F 'let available = viewport_width.max(card_w + grid_pad_x * 2.0);' crates/hoard-function/src/app.rs >/dev/null || fail 'full icon-pane selection width missing'
+grep -F 'if col >= columns {' crates/hoard-function/src/app.rs >/dev/null || fail 'right-of-grid icon whitespace selection guard missing'
 grep -F 'self.theme.accent_soft.linear_multiply(0.28)' crates/hoard-function/src/app.rs >/dev/null || fail 'translucent icon rubber-band fill missing'
 grep -F 'id_salt("details-scroll")' crates/hoard-function/src/app.rs >/dev/null || fail 'details selection surface missing'
 grep -F 'fn columns_context_menu(&mut self, ui: &mut egui::Ui)' crates/hoard-function/src/app.rs >/dev/null || fail 'details Columns context menu missing'
