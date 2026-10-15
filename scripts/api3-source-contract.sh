@@ -71,6 +71,8 @@ grep -F 'pub theme_preset: String' crates/hoard-core/src/config.rs >/dev/null ||
 grep -F '.intersect(selection_viewport);' crates/hoard-function/src/app.rs >/dev/null || fail 'full icon rubber-band viewport clipping missing'
 grep -F 'fn chrome_icon_color(theme: &Theme, active: bool) -> Color32' crates/hoard-function/src/app.rs >/dev/null || fail 'theme-aware chrome icon policy missing'
 grep -F 'header_response.context_menu(|ui| self.columns_context_menu(ui));' crates/hoard-function/src/app.rs >/dev/null || fail 'full details-header Columns context menu missing'
+grep -F 'response.context_menu(|ui| self.columns_context_menu(ui));' crates/hoard-function/src/app.rs >/dev/null || fail 'details header-cell Columns context menu missing'
+grep -F 'grip.context_menu(|ui| self.columns_context_menu(ui));' crates/hoard-function/src/app.rs >/dev/null || fail 'details header-grip Columns context menu missing'
 [[ "$(grep -Fc 'Reload Theme' crates/hoard-function/src/app.rs)" -eq 1 ]] || fail 'Reload Theme must exist only in Preferences'
 grep -F 'get_pointer_with_theme' apps/hoard/src/platform.rs >/dev/null || fail 'native themed pointer integration missing'
 grep -F 'output.cursor_icon' apps/hoard/src/platform.rs >/dev/null || fail 'egui cursor output is not forwarded to Wayland'
