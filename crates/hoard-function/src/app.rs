@@ -2668,7 +2668,7 @@ impl HoardApp {
                     rgb(155, 217, 174), rgb(45, 83, 96), rgb(45, 83, 96), rgb(17, 39, 50),
                     rgb(236, 134, 144),
                 ),
-                "obsidian-violet" | _ => (
+                _ => (
                     rgb(11, 13, 19), rgb(19, 22, 30), rgb(26, 30, 41), rgb(13, 16, 23),
                     rgb(57, 62, 79), rgb(239, 241, 247), rgb(162, 171, 189), rgb(139, 111, 221),
                     rgb(116, 225, 174), rgb(43, 36, 69), rgb(43, 36, 69), rgb(255, 255, 255),
@@ -3647,7 +3647,6 @@ impl HoardApp {
     }
 
     fn toolbar(&mut self, root: &mut egui::Ui) {
-        let ctx = root.ctx().clone();
         let t = self.theme.clone();
         let toolbar_fill = Self::darken_surface(t.panel, 0.74);
         egui::Panel::top("toolbar")
