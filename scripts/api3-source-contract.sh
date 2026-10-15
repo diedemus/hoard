@@ -61,8 +61,6 @@ grep -F 'fn sort_context_menu(&mut self, ui: &mut egui::Ui)' crates/hoard-functi
 grep -F 'SortColumn::Created' crates/hoard-core/src/fs_model.rs >/dev/null || fail 'Created sort column missing'
 grep -F 'SortColumn::Owner' crates/hoard-core/src/fs_model.rs >/dev/null || fail 'Owner sort column missing'
 grep -F 'SortColumn::Permissions' crates/hoard-core/src/fs_model.rs >/dev/null || fail 'Permissions sort column missing'
-echo 'HOARD API3 SOURCE CONTRACT PASSED'
-
 grep -F 'fn apply_theme_preset_to(mut theme: Theme, preset: &str) -> Theme' crates/hoard-function/src/app.rs >/dev/null || fail 'packaged theme preset implementation missing'
 for preset in   obsidian-violet ocean-teal amber-graphite cobalt-night ember-stone   forest-carbon plum-rose ivory-ink solar-paper nord-aurora; do
   grep -F "\"$preset\"" crates/hoard-function/src/app.rs >/dev/null || fail "Tiamat palette missing: $preset"
@@ -71,7 +69,7 @@ grep -F 'pub theme_preset: String' crates/hoard-core/src/config.rs >/dev/null ||
 grep -F '.intersect(selection_viewport);' crates/hoard-function/src/app.rs >/dev/null || fail 'full icon rubber-band viewport clipping missing'
 grep -F 'fn chrome_icon_color(theme: &Theme, active: bool) -> Color32' crates/hoard-function/src/app.rs >/dev/null || fail 'theme-aware chrome icon policy missing'
 grep -F 'header_response.context_menu(|ui| self.columns_context_menu(ui));' crates/hoard-function/src/app.rs >/dev/null || fail 'full details-header Columns context menu missing'
-! grep -F 'if ui.button("Reload Theme").clicked()' crates/hoard-function/src/app.rs | grep -v 'preferences' >/dev/null || true
+[[ "$(grep -Fc 'Reload Theme' crates/hoard-function/src/app.rs)" -eq 1 ]] || fail 'Reload Theme must exist only in Preferences'
 grep -F 'get_pointer_with_theme' apps/hoard/src/platform.rs >/dev/null || fail 'native themed pointer integration missing'
 grep -F 'output.cursor_icon' apps/hoard/src/platform.rs >/dev/null || fail 'egui cursor output is not forwarded to Wayland'
-
+echo 'HOARD API3 SOURCE CONTRACT PASSED'
