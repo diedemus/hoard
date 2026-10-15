@@ -3,7 +3,7 @@ schema = 3
 [project]
 name = "hoard"
 version = "0.8.0-dev.1"
-candidate_revision = "api3-r26"
+candidate_revision = "api3-r27"
 profile = "desktop-application"
 
 [framework]
