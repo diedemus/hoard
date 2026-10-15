@@ -4975,6 +4975,9 @@ impl HoardApp {
                             let cell_h = card_h + row_gap;
                             let col = (local_x / cell_w).floor() as usize;
                             let row = (local_y / cell_h).floor() as usize;
+                            if col >= columns {
+                                return true;
+                            }
                             let within_card =
                                 local_x % cell_w <= card_w && local_y % cell_h <= card_h;
                             let pos_idx = row.saturating_mul(columns).saturating_add(col);
