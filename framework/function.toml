@@ -1,0 +1,5 @@
+schema = 1
+
+[function]
+name = "hoard-function"
+source_roots = ["crates/hoard-core/src", "crates/hoard-function/src", "apps/hoard/src"]

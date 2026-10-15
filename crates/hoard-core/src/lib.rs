@@ -1,0 +1,10 @@
+pub mod cache;
+pub mod config;
+pub mod diagnostics;
+pub mod fs_model;
+pub mod history;
+pub mod identity;
+pub mod search;
+pub mod self_test;
+pub mod thumbnail;
+pub mod updater;

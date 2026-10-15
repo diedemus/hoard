@@ -1,0 +1,23 @@
+[package]
+name = "hoard"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "A native Wayland, Vulkan-rendered file manager"
+publish = false
+
+[[bin]]
+name = "hoard"
+path = "src/main.rs"
+
+[dependencies]
+hoard-core = { path = "../../crates/hoard-core" }
+hoard-function = { path = "../../crates/hoard-function" }
+anyhow.workspace = true
+egui.workspace = true
+egui-wgpu.workspace = true
+raw-window-handle.workspace = true
+pollster.workspace = true
+smithay-client-toolkit.workspace = true
+wgpu.workspace = true
+url.workspace = true

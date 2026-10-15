@@ -5,9 +5,29 @@ thumbnail_size = 112
 show_preview = true
 toolbar_labels = true
 window_opacity = 1.0
+theme_preset = "obsidian-violet"
 confirm_permanent_delete = true
 terminal = "alacritty"
 sort_column = "name"
 sort_ascending = true
-
 remember_tabs = true
+open_folders_in_new_tab = false
+recursive_search_default = false
+recursive_search_max_results = 5000
+directory_cache = true
+thumbnail_disk_cache = true
+thumbnail_cache_limit_mb = 768
+
+thumbnail_cache_max_age_days = 30
+recursive_search_remote = false
+
+details_columns = ["name", "type", "size", "modified"]
+
+[details_column_widths]
+name = 320.0
+type = 150.0
+size = 110.0
+modified = 190.0
+created = 190.0
+owner = 110.0
+permissions = 120.0

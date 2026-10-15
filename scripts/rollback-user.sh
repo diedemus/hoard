@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"; STATE="$ROOT/.framework/hoard-deploy-state"; [[ -d "$STATE" ]] || { echo 'no Hoard deploy state exists; nothing to roll back' >&2; exit 0; }; PREFIX="$(cat "$STATE/prefix" 2>/dev/null || printf '%s' "${PREFIX:-$HOME/.local}")"
+restore(){ local key="$1" path="$2"; if [[ "$(cat "$STATE/${key}.present" 2>/dev/null || echo 0)" == 1 ]]; then mkdir -p "$(dirname "$path")"; cp -a "$STATE/backup/$key" "$path"; else rm -f "$path"; fi; }
+restore binary "$PREFIX/bin/hoard"; restore desktop "$PREFIX/share/applications/hoard.desktop"; restore icon "$PREFIX/share/icons/hicolor/scalable/apps/hoard.svg"; restore theme "$PREFIX/share/hoard/themes/hoard.toml"; restore config-theme "$HOME/.config/hoard/themes/hoard.toml"; restore settings "$HOME/.config/hoard/settings.toml"; restore update "$HOME/.config/hoard/update.toml"; restore framework-lock "$PREFIX/share/hoard/build-info/framework-lock.json"; restore cargo-lock "$PREFIX/share/hoard/build-info/Cargo.lock"; restore evidence "$PREFIX/share/hoard/build-info/evidence.json"; restore installed-sha "$PREFIX/share/hoard/build-info/installed.sha256"; restore build-id "$PREFIX/share/hoard/build-info/build-id"
+PREV_MIME="$(cat "$STATE/previous-mime" 2>/dev/null || true)"; if [[ -n "$PREV_MIME" ]] && command -v xdg-mime >/dev/null 2>&1; then xdg-mime default "$PREV_MIME" inode/directory || true; fi
+echo 'HOARD ROLLBACK COMPLETED'

@@ -1,0 +1,4 @@
+schema = 1
+required_api = 1
+profile = "desktop-application"
+shellcheck_required = true

@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Minimal non-authoritative bootstrap: fetch canonical source/ref and delegate sync to it.
+set -euo pipefail
+fail() {
+  local phase="$1" code="$2" message="$3"
+  printf 'FRAMEWORK FAILURE phase=%s code=%s message=%q\n' "$phase" "$code" "$message" >&2
+  exit "$code"
+}
+ROOT=""
+while (($#)); do
+  case "$1" in
+    --project-root|--root) ROOT="$2"; shift 2;;
+    *) fail bootstrap 64 "unsupported bootstrap argument: $1";;
+  esac
+done
+[[ -n "$ROOT" ]] || ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+SOURCE_FILE="$ROOT/framework/canonical-source"
+[[ -f "$SOURCE_FILE" ]] || fail bootstrap 70 'framework/canonical-source missing'
+SPEC="$(<"$SOURCE_FILE")"
+[[ "$SPEC" == git+* ]] || fail bootstrap 70 'API-3 canonical source must be git+URL#ref'
+RAW="${SPEC#git+}"; URL="${RAW%%#*}"; REF="${RAW#*#}"
+[[ "$RAW" != "$REF" ]] || fail bootstrap 70 'canonical source must include #ref'
+TMP="$(mktemp -d -t stable-build-framework-bootstrap.XXXXXX)"
+trap 'rm -rf "$TMP"' EXIT
+if ! git clone --quiet --depth 1 --branch "$REF" "$URL" "$TMP/repo"; then
+  fail sync-fetch 71 'canonical framework fetch failed; stale cache fallback is forbidden online'
+fi
+[[ -x "$TMP/repo/bin/framework-sync" ]] || fail sync-integrity 72 'canonical framework missing bin/framework-sync'
+exec "$TMP/repo/bin/framework-sync" --project-root "$ROOT"

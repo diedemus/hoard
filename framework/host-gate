@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+BOOT="$ROOT/framework/bootstrap/framework-sync"
+[[ -x "$BOOT" ]] || { echo 'FRAMEWORK FAILURE phase=bootstrap message="framework bootstrap sync tool missing"' >&2; exit 70; }
+"$BOOT" --project-root "$ROOT"
+exec "$ROOT/.framework/snapshot/bin/framework-host-gate" --root "$ROOT" --deploy --extra-shell "$ROOT/framework/host-gate"

@@ -1,0 +1,17 @@
+application-core
+shared-ui-core
+validator-api
+candidate-assembly
+canonical-sync
+immutable-snapshot
+framework-lock
+explicit-framework-release
+deterministic-locked-build
+explicit-dependency-update
+isolated-candidate-tree
+isolated-format-normalization
+script-interpreter-classification
+structured-failure-evidence
+artifact-hashing
+deploy-rollback
+host-authoritative-validation

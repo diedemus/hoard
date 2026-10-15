@@ -1,0 +1,40 @@
+schema = 3
+
+[project]
+name = "hoard"
+version = "0.8.0-dev.1"
+candidate_revision = "api3-r25"
+profile = "desktop-application"
+
+[framework]
+required_api = 3
+core_components = ["stable-app-core", "stable-ui"]
+required_capabilities = [
+  "application-core",
+  "shared-ui-core",
+  "validator-api",
+  "candidate-assembly",
+  "deterministic-locked-build",
+  "isolated-candidate-tree",
+  "external-cargo-target-cache",
+  "bounded-work-retention",
+  "source-build-state-sanitization",
+  "artifact-size-guard",
+  "cache-telemetry",
+  "structured-failure-evidence",
+]
+
+[validator]
+required_api = 1
+
+[artifacts]
+paths = []
+allow_empty = false
+max_total_size_mb = 512
+
+[cache]
+max_project_gb = 12.0
+
+[retention]
+failed_worktrees = 2
+successful_worktrees = 0

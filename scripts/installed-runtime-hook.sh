@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"; cd "$ROOT"
+PREFIX="${PREFIX:-$HOME/.local}"; BIN="$PREFIX/bin/hoard"; STATE="$ROOT/.framework/hoard-deploy-state"; [[ -x "$BIN" ]] || { echo "installed Hoard binary missing: $BIN" >&2; exit 1; }; EXPECTED_BUILD="$(cat "$STATE/expected-build")"; EXPECTED_SHA="$(awk '{print $1}' "$STATE/candidate.sha256")"; [[ "$("$BIN" --build-id)" == "$EXPECTED_BUILD" ]] || { echo 'installed build identity mismatch' >&2; exit 1; }; INSTALLED_SHA="$(sha256sum "$BIN" | awk '{print $1}')"; [[ "$INSTALLED_SHA" == "$EXPECTED_SHA" ]] || { echo 'installed/candidate hash mismatch' >&2; exit 1; }
+TMP="$(mktemp -d -t hoard-installed-self-test.XXXXXX)"; trap 'rm -rf "$TMP"' EXIT; mkdir -p "$TMP/home" "$TMP/config" "$TMP/cache" "$TMP/data" "$TMP/state"; HOME="$TMP/home" XDG_CONFIG_HOME="$TMP/config" XDG_CACHE_HOME="$TMP/cache" XDG_DATA_HOME="$TMP/data" XDG_STATE_HOME="$TMP/state" "$BIN" --self-test; "$ROOT/scripts/runtime-smoke.sh" "$BIN"; rm -rf "$TMP"; trap - EXIT
+BUILDDIR="$PREFIX/share/hoard/build-info"; mkdir -p "$BUILDDIR"; printf '%s  %s\n' "$INSTALLED_SHA" "$BIN" > "$BUILDDIR/installed.sha256"; printf '%s\n' "$EXPECTED_BUILD" > "$BUILDDIR/build-id"; echo 'HOARD INSTALLED RUNTIME VALIDATION PASSED'

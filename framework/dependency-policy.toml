@@ -1,0 +1,66 @@
+schema = 1
+channel = "stable"
+allow_prerelease = false
+
+[crates.anyhow]
+
+[crates.ashpd]
+default_features = false
+features = ["tokio", "open_uri"]
+
+[crates.chrono]
+default_features = false
+features = ["clock"]
+
+[crates.dirs]
+[crates.filetime]
+
+[crates.egui]
+default_features = false
+features = ["default_fonts"]
+
+[crates.egui-wgpu]
+default_features = false
+
+[crates.raw-window-handle]
+[crates.pollster]
+
+[crates.smithay-client-toolkit]
+default_features = false
+features = ["calloop", "xkbcommon", "system"]
+
+[crates.wgpu]
+default_features = false
+features = ["std", "vulkan", "wgsl"]
+forbidden_features = ["gles", "webgl"]
+
+[crates.nix]
+features = ["fs"]
+
+[crates.reqwest]
+default_features = false
+features = ["blocking", "json", "rustls"]
+
+[crates.semver]
+
+[crates.serde]
+features = ["derive"]
+
+[crates.serde_json]
+[crates.sha2]
+[crates.tar]
+[crates.tempfile]
+[crates.toml]
+
+[crates.tokio]
+features = ["rt", "net", "time"]
+
+[crates.zstd]
+
+[crates.image]
+default_features = false
+features = ["bmp", "gif", "jpeg", "png", "tiff", "webp"]
+
+[crates.percent-encoding]
+[crates.walkdir]
+[crates.url]
