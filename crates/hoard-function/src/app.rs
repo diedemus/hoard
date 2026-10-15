@@ -2612,100 +2612,83 @@ impl HoardApp {
     fn apply_theme_preset_to(mut theme: Theme, preset: &str) -> Theme {
         let rgb = |r, g, b| Color32::from_rgb(r, g, b);
 
-        match preset {
-            "midnight-alloy" => {
-                theme.background = rgb(8, 13, 20);
-                theme.panel = rgb(12, 19, 30);
-                theme.panel_alt = rgb(17, 27, 41);
-                theme.sidebar = rgb(9, 15, 24);
-                theme.foreground = rgb(239, 245, 252);
-                theme.muted = rgb(135, 151, 170);
-                theme.border = rgb(48, 65, 87);
-                theme.accent = rgb(93, 140, 255);
-                theme.accent_green = rgb(91, 214, 255);
-                theme.accent_soft = rgb(20, 36, 71);
-                theme.selection = rgb(36, 75, 132);
-                theme.selection_text = rgb(255, 255, 255);
-                theme.danger = rgb(255, 101, 122);
-            }
-            "forest-circuit" => {
-                theme.background = rgb(7, 12, 9);
-                theme.panel = rgb(11, 18, 14);
-                theme.panel_alt = rgb(16, 26, 20);
-                theme.sidebar = rgb(8, 14, 11);
-                theme.foreground = rgb(239, 248, 241);
-                theme.muted = rgb(132, 150, 138);
-                theme.border = rgb(48, 64, 57);
-                theme.accent = rgb(40, 215, 125);
-                theme.accent_green = rgb(125, 238, 107);
-                theme.accent_soft = rgb(18, 53, 34);
-                theme.selection = rgb(23, 96, 57);
-                theme.selection_text = rgb(255, 255, 255);
-                theme.danger = rgb(255, 102, 95);
-            }
-            "ember-vault" => {
-                theme.background = rgb(13, 9, 8);
-                theme.panel = rgb(21, 16, 14);
-                theme.panel_alt = rgb(28, 21, 18);
-                theme.sidebar = rgb(16, 11, 9);
-                theme.foreground = rgb(255, 244, 237);
-                theme.muted = rgb(168, 149, 136);
-                theme.border = rgb(73, 55, 46);
-                theme.accent = rgb(255, 138, 50);
-                theme.accent_green = rgb(255, 202, 85);
-                theme.accent_soft = rgb(59, 32, 17);
-                theme.selection = rgb(113, 55, 23);
-                theme.selection_text = rgb(255, 255, 255);
-                theme.danger = rgb(255, 82, 82);
-            }
-            "arctic-carbon" => {
-                theme.background = rgb(9, 12, 16);
-                theme.panel = rgb(14, 19, 25);
-                theme.panel_alt = rgb(21, 27, 34);
-                theme.sidebar = rgb(11, 15, 20);
-                theme.foreground = rgb(242, 247, 250);
-                theme.muted = rgb(142, 154, 165);
-                theme.border = rgb(54, 65, 75);
-                theme.accent = rgb(98, 203, 255);
-                theme.accent_green = rgb(126, 224, 255);
-                theme.accent_soft = rgb(23, 49, 66);
-                theme.selection = rgb(36, 90, 115);
-                theme.selection_text = rgb(255, 255, 255);
-                theme.danger = rgb(255, 97, 123);
-            }
-            // Hoard/Lattice visual baseline and fallback.
-            "obsidian-violet" => {
-                theme.background = rgb(9, 11, 16);
-                theme.panel = rgb(13, 16, 23);
-                theme.panel_alt = rgb(18, 22, 32);
-                theme.sidebar = rgb(10, 13, 19);
-                theme.foreground = rgb(242, 244, 248);
-                theme.muted = rgb(146, 153, 168);
-                theme.border = rgb(54, 59, 73);
-                theme.accent = rgb(164, 61, 255);
-                theme.accent_green = rgb(114, 255, 114);
-                theme.accent_soft = rgb(36, 21, 53);
-                theme.selection = rgb(81, 33, 113);
-                theme.selection_text = rgb(255, 255, 255);
-                theme.danger = rgb(255, 84, 104);
-            }
-            _ => {
-                theme.background = rgb(9, 11, 16);
-                theme.panel = rgb(13, 16, 23);
-                theme.panel_alt = rgb(18, 22, 32);
-                theme.sidebar = rgb(10, 13, 19);
-                theme.foreground = rgb(242, 244, 248);
-                theme.muted = rgb(146, 153, 168);
-                theme.border = rgb(54, 59, 73);
-                theme.accent = rgb(164, 61, 255);
-                theme.accent_green = rgb(114, 255, 114);
-                theme.accent_soft = rgb(36, 21, 53);
-                theme.selection = rgb(81, 33, 113);
-                theme.selection_text = rgb(255, 255, 255);
-                theme.danger = rgb(255, 84, 104);
-            }
-        }
+        let (background, panel, panel_alt, sidebar, border, foreground, muted, accent, accent_green, accent_soft, selection, selection_text, danger) =
+            match preset {
+                "ocean-teal" => (
+                    rgb(8, 18, 24), rgb(17, 32, 40), rgb(21, 42, 50), rgb(10, 24, 31),
+                    rgb(55, 84, 91), rgb(233, 250, 247), rgb(155, 187, 188), rgb(45, 165, 159),
+                    rgb(116, 226, 185), rgb(23, 65, 67), rgb(23, 65, 67), rgb(255, 255, 255),
+                    rgb(247, 136, 130),
+                ),
+                "amber-graphite" => (
+                    rgb(18, 17, 16), rgb(30, 29, 27), rgb(40, 37, 32), rgb(24, 23, 22),
+                    rgb(79, 70, 59), rgb(248, 239, 223), rgb(192, 180, 159), rgb(197, 134, 50),
+                    rgb(153, 212, 135), rgb(69, 49, 27), rgb(69, 49, 27), rgb(18, 17, 16),
+                    rgb(240, 122, 103),
+                ),
+                "cobalt-night" => (
+                    rgb(11, 16, 30), rgb(19, 28, 45), rgb(27, 40, 61), rgb(14, 21, 35),
+                    rgb(57, 77, 108), rgb(241, 246, 255), rgb(159, 184, 215), rgb(76, 131, 225),
+                    rgb(118, 223, 189), rgb(28, 51, 91), rgb(28, 51, 91), rgb(255, 255, 255),
+                    rgb(243, 128, 147),
+                ),
+                "ember-stone" => (
+                    rgb(21, 16, 18), rgb(34, 25, 28), rgb(44, 33, 37), rgb(27, 20, 24),
+                    rgb(84, 65, 70), rgb(253, 242, 238), rgb(199, 168, 171), rgb(206, 99, 78),
+                    rgb(141, 215, 160), rgb(74, 37, 40), rgb(74, 37, 40), rgb(255, 255, 255),
+                    rgb(251, 129, 135),
+                ),
+                "forest-carbon" => (
+                    rgb(12, 18, 17), rgb(21, 30, 28), rgb(29, 42, 37), rgb(16, 23, 22),
+                    rgb(57, 79, 72), rgb(234, 248, 241), rgb(161, 187, 175), rgb(93, 169, 128),
+                    rgb(136, 228, 181), rgb(33, 65, 51), rgb(33, 65, 51), rgb(12, 25, 18),
+                    rgb(240, 134, 130),
+                ),
+                "plum-rose" => (
+                    rgb(19, 13, 22), rgb(32, 22, 35), rgb(44, 30, 46), rgb(25, 18, 29),
+                    rgb(82, 58, 78), rgb(250, 239, 247), rgb(194, 167, 188), rgb(181, 91, 148),
+                    rgb(147, 219, 181), rgb(71, 34, 61), rgb(71, 34, 61), rgb(255, 255, 255),
+                    rgb(248, 132, 143),
+                ),
+                "ivory-ink" => (
+                    rgb(230, 232, 231), rgb(252, 252, 248), rgb(237, 241, 241), rgb(220, 226, 228),
+                    rgb(176, 187, 192), rgb(26, 43, 51), rgb(85, 107, 118), rgb(45, 99, 128),
+                    rgb(29, 113, 87), rgb(202, 224, 233), rgb(202, 224, 233), rgb(255, 255, 255),
+                    rgb(176, 54, 65),
+                ),
+                "solar-paper" => (
+                    rgb(236, 229, 213), rgb(253, 248, 238), rgb(239, 233, 221), rgb(226, 215, 196),
+                    rgb(181, 167, 149), rgb(55, 44, 35), rgb(115, 99, 85), rgb(139, 83, 42),
+                    rgb(44, 123, 83), rgb(238, 210, 174), rgb(238, 210, 174), rgb(255, 255, 255),
+                    rgb(173, 63, 56),
+                ),
+                "nord-aurora" => (
+                    rgb(20, 27, 36), rgb(31, 42, 52), rgb(40, 55, 65), rgb(25, 34, 45),
+                    rgb(73, 91, 105), rgb(236, 244, 249), rgb(166, 192, 207), rgb(107, 172, 194),
+                    rgb(155, 217, 174), rgb(45, 83, 96), rgb(45, 83, 96), rgb(17, 39, 50),
+                    rgb(236, 134, 144),
+                ),
+                "obsidian-violet" | _ => (
+                    rgb(11, 13, 19), rgb(19, 22, 30), rgb(26, 30, 41), rgb(13, 16, 23),
+                    rgb(57, 62, 79), rgb(239, 241, 247), rgb(162, 171, 189), rgb(139, 111, 221),
+                    rgb(116, 225, 174), rgb(43, 36, 69), rgb(43, 36, 69), rgb(255, 255, 255),
+                    rgb(245, 120, 133),
+                ),
+            };
 
+        theme.background = background;
+        theme.panel = panel;
+        theme.panel_alt = panel_alt;
+        theme.sidebar = sidebar;
+        theme.border = border;
+        theme.foreground = foreground;
+        theme.muted = muted;
+        theme.accent = accent;
+        theme.accent_green = accent_green;
+        theme.accent_soft = accent_soft;
+        theme.selection = selection;
+        theme.selection_text = selection_text;
+        theme.danger = danger;
         theme
     }
 
@@ -3734,12 +3717,55 @@ impl HoardApp {
                             }
                         });
 
+                    let labels = self.settings.toolbar_labels && ui.available_width() >= 1560.0;
+
+                    // View cluster.
+                    egui::Frame::new()
+                        .fill(t.panel_alt)
+                        .stroke(Stroke::new(1.0_f32, t.border))
+                        .corner_radius(8.0)
+                        .inner_margin(egui::Margin::same(2))
+                        .show(ui, |ui| {
+                            ui.spacing_mut().item_spacing.x = 1.0;
+                            if Self::toolbar_button(
+                                ui,
+                                ToolIcon::Details,
+                                "Details",
+                                labels,
+                                self.view == ViewMode::Details,
+                                &t,
+                            )
+                            .clicked()
+                            {
+                                self.view = ViewMode::Details;
+                                self.persist_browsing_settings();
+                                self.save_active_tab_state();
+                                self.persist_session();
+                                self.start_metadata_load();
+                            }
+                            if Self::toolbar_button(
+                                ui,
+                                ToolIcon::Icons,
+                                "Icons",
+                                labels,
+                                self.view == ViewMode::Icons,
+                                &t,
+                            )
+                            .clicked()
+                            {
+                                self.view = ViewMode::Icons;
+                                self.persist_browsing_settings();
+                                self.save_active_tab_state();
+                                self.persist_session();
+                            }
+                        });
+
+
                     // Size the remainder from the row width that is actually available after
                     // the navigation cluster.  The previous window-width estimate under-counted
                     // the right-side controls, so Hidden/Sort/Menu could overlap as the window
                     // narrowed.  Collapse those controls before sacrificing the editable fields.
                     let total = ui.available_width();
-                    let labels = self.settings.toolbar_labels && total >= 1560.0;
                     let compact = total < 1400.0;
                     let search_w = if total >= 1400.0 {
                         220.0
@@ -3875,47 +3901,6 @@ impl HoardApp {
                         );
                     }
 
-                    // View cluster.
-                    egui::Frame::new()
-                        .fill(t.panel_alt)
-                        .stroke(Stroke::new(1.0_f32, t.border))
-                        .corner_radius(8.0)
-                        .inner_margin(egui::Margin::same(2))
-                        .show(ui, |ui| {
-                            ui.spacing_mut().item_spacing.x = 1.0;
-                            if Self::toolbar_button(
-                                ui,
-                                ToolIcon::Details,
-                                "Details",
-                                labels,
-                                self.view == ViewMode::Details,
-                                &t,
-                            )
-                            .clicked()
-                            {
-                                self.view = ViewMode::Details;
-                                self.persist_browsing_settings();
-                                self.save_active_tab_state();
-                                self.persist_session();
-                                self.start_metadata_load();
-                            }
-                            if Self::toolbar_button(
-                                ui,
-                                ToolIcon::Icons,
-                                "Icons",
-                                labels,
-                                self.view == ViewMode::Icons,
-                                &t,
-                            )
-                            .clicked()
-                            {
-                                self.view = ViewMode::Icons;
-                                self.persist_browsing_settings();
-                                self.save_active_tab_state();
-                                self.persist_session();
-                            }
-                        });
-
                     // Right-edge actions consume the remaining row width so the toolbar
                     // visually spans the window instead of ending in a dead strip.
                     ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
@@ -4005,10 +3990,6 @@ impl HoardApp {
                                 }
                                 if ui.button("Preferences…").clicked() {
                                     self.show_preferences = true;
-                                    ui.close();
-                                }
-                                if ui.button("Reload Theme").clicked() {
-                                    self.reload_theme_with_opacity(&ctx);
                                     ui.close();
                                 }
                                 if ui.button("Check GitHub for Updates").clicked() {
@@ -4413,8 +4394,9 @@ impl HoardApp {
         let grip_w = 10.0_f32;
         let detail_pad_x = 28.0_f32;
 
-        let (header_rect, _) =
+        let (header_rect, header_response) =
             ui.allocate_exact_size(Vec2::new(available_width, header_h), Sense::hover());
+        header_response.context_menu(|ui| self.columns_context_menu(ui));
         ui.painter().rect_filled(
             header_rect,
             0.0,
@@ -5887,6 +5869,7 @@ impl HoardApp {
         let mut changed = false;
         let mut update_changed = false;
         let opacity_before = self.settings.window_opacity;
+        let theme_before = self.settings.theme_preset.clone();
         let sort_before = self.sort;
         let sort_ascending_before = self.sort_ascending;
         let pref_panel = self.theme.panel_alt;
@@ -6005,62 +5988,61 @@ impl HoardApp {
 
                         egui::ComboBox::from_id_salt("hoard-theme-preset")
                             .selected_text(match self.settings.theme_preset.as_str() {
-                                "midnight-alloy" => "Midnight Alloy",
-                                "forest-circuit" => "Forest Circuit",
-                                "ember-vault" => "Ember Vault",
-                                "arctic-carbon" => "Arctic Carbon",
+                                "ocean-teal" => "Ocean Teal",
+                                "amber-graphite" => "Amber Graphite",
+                                "cobalt-night" => "Cobalt Night",
+                                "ember-stone" => "Ember Stone",
+                                "forest-carbon" => "Forest Carbon",
+                                "plum-rose" => "Plum Rose",
+                                "ivory-ink" => "Ivory Ink",
+                                "solar-paper" => "Solar Paper",
+                                "nord-aurora" => "Nord Aurora",
                                 _ => "Obsidian Violet",
                             })
                             .width(220.0)
                             .show_ui(ui, |ui| {
-                                changed |= ui
-                                    .selectable_value(
-                                        &mut self.settings.theme_preset,
-                                        "obsidian-violet".into(),
-                                        "Obsidian Violet",
-                                    )
-                                    .changed();
-
-                                changed |= ui
-                                    .selectable_value(
-                                        &mut self.settings.theme_preset,
-                                        "midnight-alloy".into(),
-                                        "Midnight Alloy",
-                                    )
-                                    .changed();
-
-                                changed |= ui
-                                    .selectable_value(
-                                        &mut self.settings.theme_preset,
-                                        "forest-circuit".into(),
-                                        "Forest Circuit",
-                                    )
-                                    .changed();
-
-                                changed |= ui
-                                    .selectable_value(
-                                        &mut self.settings.theme_preset,
-                                        "ember-vault".into(),
-                                        "Ember Vault",
-                                    )
-                                    .changed();
-
-                                changed |= ui
-                                    .selectable_value(
-                                        &mut self.settings.theme_preset,
-                                        "arctic-carbon".into(),
-                                        "Arctic Carbon",
-                                    )
-                                    .changed();
+                                for (key, label) in [
+                                    ("obsidian-violet", "Obsidian Violet"),
+                                    ("ocean-teal", "Ocean Teal"),
+                                    ("amber-graphite", "Amber Graphite"),
+                                    ("cobalt-night", "Cobalt Night"),
+                                    ("ember-stone", "Ember Stone"),
+                                    ("forest-carbon", "Forest Carbon"),
+                                    ("plum-rose", "Plum Rose"),
+                                    ("ivory-ink", "Ivory Ink"),
+                                    ("solar-paper", "Solar Paper"),
+                                    ("nord-aurora", "Nord Aurora"),
+                                ] {
+                                    changed |= ui
+                                        .selectable_value(
+                                            &mut self.settings.theme_preset,
+                                            key.to_string(),
+                                            label,
+                                        )
+                                        .changed();
+                                }
                             });
 
                         ui.label(
                             RichText::new(
-                                "Obsidian Violet is the Hoard/Lattice baseline. Presets keep the shared stable-ui layout and metrics."
+                                "Hoard uses the same ten bundled palettes as Tiamat while preserving Hoard's file-manager layout and metrics."
                             )
                             .size(12.0)
                             .color(self.theme.muted),
                         );
+
+                        ui.horizontal(|ui| {
+                            if ui.small_button("Reload Theme").clicked() {
+                                self.reload_theme_with_opacity(ctx);
+                                self.egui_ctx.request_repaint();
+                                self.status = "Theme reloaded".into();
+                            }
+                            ui.label(
+                                RichText::new("Use only if an external theme edit or rendering issue needs a manual refresh.")
+                                    .size(11.5)
+                                    .color(self.theme.muted),
+                            );
+                        });
 
                         ui.add_space(10.0);
 
@@ -6256,7 +6238,9 @@ impl HoardApp {
                 self.rebuild_entry_index();
             }
             self.settings.window_opacity = self.settings.window_opacity.clamp(0.55, 1.0);
-            if (self.settings.window_opacity - opacity_before).abs() > f32::EPSILON {
+            if self.settings.theme_preset != theme_before
+                || (self.settings.window_opacity - opacity_before).abs() > f32::EPSILON
+            {
                 self.reload_theme_with_opacity(ctx);
             }
             self.settings.show_hidden = self.show_hidden;
