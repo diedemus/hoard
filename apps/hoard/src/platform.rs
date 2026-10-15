@@ -33,7 +33,8 @@ use smithay_client_toolkit::{
         keyboard::{KeyEvent, KeyboardHandler, Keysym, Modifiers, RawModifiers},
         pointer::{
             BTN_BACK, BTN_EXTRA, BTN_FORWARD, BTN_LEFT, BTN_MIDDLE, BTN_RIGHT, BTN_SIDE,
-            PointerEvent, PointerEventKind, PointerHandler,
+            CursorIcon as SctkCursorIcon, PointerEvent, PointerEventKind, PointerHandler, ThemeSpec,
+            ThemedPointer,
         },
     },
     shell::{
@@ -43,6 +44,7 @@ use smithay_client_toolkit::{
             window::{Window, WindowConfigure, WindowDecorations, WindowHandler},
         },
     },
+    shm::{Shm, ShmHandler},
 };
 use std::{
     fs,
@@ -67,7 +69,7 @@ struct SeatObjects {
     seat: wl_seat::WlSeat,
     data_device: DataDevice,
     keyboard: Option<wl_keyboard::WlKeyboard>,
-    pointer: Option<wl_pointer::WlPointer>,
+    pointer: Option<ThemedPointer>,
 }
 
 struct DragSourceState {
@@ -96,6 +98,7 @@ pub fn run(start_path: Option<PathBuf>) -> Result<()> {
 
     let compositor =
         CompositorState::bind(&globals, &qh).context("wl_compositor is unavailable")?;
+    let shm = Shm::bind(&globals, &qh).context("wl_shm is unavailable")?;
     let xdg_shell = XdgShell::bind(&globals, &qh).context("xdg-shell is unavailable")?;
     let data_device_manager = DataDeviceManagerState::bind(&globals, &qh)
         .context("wl_data_device_manager is unavailable")?;
@@ -205,6 +208,9 @@ pub fn run(start_path: Option<PathBuf>) -> Result<()> {
         registry_state: RegistryState::new(&globals),
         seat_state: SeatState::new(&globals, &qh),
         output_state: OutputState::new(&globals, &qh),
+        compositor_state: compositor,
+        shm_state: shm,
+        connection: conn.clone(),
         data_device_manager,
         window,
         app,
@@ -303,6 +309,9 @@ struct NativeWaylandApp {
     registry_state: RegistryState,
     seat_state: SeatState,
     output_state: OutputState,
+    compositor_state: CompositorState,
+    shm_state: Shm,
+    connection: Connection,
     data_device_manager: DataDeviceManagerState,
     window: Window,
     app: HoardApp,
@@ -563,7 +572,55 @@ impl NativeWaylandApp {
         }
     }
 
+    fn map_egui_cursor(icon: egui::CursorIcon) -> Option<SctkCursorIcon> {
+        Some(match icon {
+            egui::CursorIcon::None => return None,
+            egui::CursorIcon::Default => SctkCursorIcon::Default,
+            egui::CursorIcon::ContextMenu => SctkCursorIcon::ContextMenu,
+            egui::CursorIcon::Help => SctkCursorIcon::Help,
+            egui::CursorIcon::PointingHand => SctkCursorIcon::Pointer,
+            egui::CursorIcon::Progress => SctkCursorIcon::Progress,
+            egui::CursorIcon::Wait => SctkCursorIcon::Wait,
+            egui::CursorIcon::Cell => SctkCursorIcon::Cell,
+            egui::CursorIcon::Crosshair => SctkCursorIcon::Crosshair,
+            egui::CursorIcon::Text => SctkCursorIcon::Text,
+            egui::CursorIcon::VerticalText => SctkCursorIcon::VerticalText,
+            egui::CursorIcon::Alias => SctkCursorIcon::Alias,
+            egui::CursorIcon::Copy => SctkCursorIcon::Copy,
+            egui::CursorIcon::Move => SctkCursorIcon::Move,
+            egui::CursorIcon::NoDrop => SctkCursorIcon::NoDrop,
+            egui::CursorIcon::NotAllowed => SctkCursorIcon::NotAllowed,
+            egui::CursorIcon::Grab => SctkCursorIcon::Grab,
+            egui::CursorIcon::Grabbing => SctkCursorIcon::Grabbing,
+            egui::CursorIcon::AllScroll => SctkCursorIcon::AllScroll,
+            egui::CursorIcon::ResizeHorizontal => SctkCursorIcon::EwResize,
+            egui::CursorIcon::ResizeNeSw => SctkCursorIcon::NeswResize,
+            egui::CursorIcon::ResizeNwSe => SctkCursorIcon::NwseResize,
+            egui::CursorIcon::ResizeVertical => SctkCursorIcon::NsResize,
+            egui::CursorIcon::ResizeEast => SctkCursorIcon::EResize,
+            egui::CursorIcon::ResizeSouthEast => SctkCursorIcon::SeResize,
+            egui::CursorIcon::ResizeSouth => SctkCursorIcon::SResize,
+            egui::CursorIcon::ResizeSouthWest => SctkCursorIcon::SwResize,
+            egui::CursorIcon::ResizeWest => SctkCursorIcon::WResize,
+            egui::CursorIcon::ResizeNorthWest => SctkCursorIcon::NwResize,
+            egui::CursorIcon::ResizeNorth => SctkCursorIcon::NResize,
+            egui::CursorIcon::ResizeNorthEast => SctkCursorIcon::NeResize,
+            egui::CursorIcon::ResizeColumn => SctkCursorIcon::ColResize,
+            egui::CursorIcon::ResizeRow => SctkCursorIcon::RowResize,
+            egui::CursorIcon::ZoomIn => SctkCursorIcon::ZoomIn,
+            egui::CursorIcon::ZoomOut => SctkCursorIcon::ZoomOut,
+        })
+    }
+
     fn process_egui_platform_output(&mut self, output: &egui::PlatformOutput) {
+        if let Some(cursor) = Self::map_egui_cursor(output.cursor_icon) {
+            for seat in &mut self.seats {
+                if let Some(pointer) = seat.pointer.as_mut() {
+                    let _ = pointer.set_cursor(&self.connection, cursor);
+                }
+            }
+        }
+
         for command in &output.commands {
             match command {
                 egui::OutputCommand::CopyText(text) => {
@@ -960,10 +1017,17 @@ impl SeatHandler for NativeWaylandApp {
                 }
             }
             Capability::Pointer if self.seats[index].pointer.is_none() => {
-                if let Ok(pointer) = self.seat_state.get_pointer(qh, &seat) {
+                let cursor_surface = self.compositor_state.create_surface(qh);
+                if let Ok(pointer) = self.seat_state.get_pointer_with_theme::<_, ()>(
+                    qh,
+                    &seat,
+                    self.shm_state.wl_shm(),
+                    cursor_surface,
+                    ThemeSpec::default(),
+                ) {
                     self.seats[index].pointer = Some(pointer);
                     if native_trace_enabled() {
-                        eprintln!("HOARD_NATIVE pointer-bound");
+                        eprintln!("HOARD_NATIVE themed-pointer-bound");
                     }
                 }
             }
@@ -989,7 +1053,7 @@ impl SeatHandler for NativeWaylandApp {
             }
             Capability::Pointer => {
                 if let Some(pointer) = object.pointer.take() {
-                    pointer.release();
+                    pointer.pointer().release();
                 }
             }
             _ => {}
@@ -1430,6 +1494,12 @@ impl DataSourceHandler for NativeWaylandApp {
         _source: &WlDataSource,
         _action: DndAction,
     ) {
+    }
+}
+
+impl ShmHandler for NativeWaylandApp {
+    fn shm_state(&mut self) -> &mut Shm {
+        &mut self.shm_state
     }
 }
 
