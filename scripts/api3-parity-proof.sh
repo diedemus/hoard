@@ -32,6 +32,16 @@ require_source 'restore_selected_from_trash' "$APP" 'multi-selection restore UI 
 require_source 'Open With' "$APP" 'open-with UI parity missing'
 require_source 'save_pinned' "$APP" 'pinned-location persistence parity missing'
 require_source 'UndoHistory' "$APP" 'undo/redo integration missing'
+require_source 'fn selected_items\(' "$APP" 'multi-selection operation source missing'
+require_source 'PendingCollision' "$APP" 'collision decision flow missing'
+require_source 'CollisionPolicy::KeepBoth' "$APP" 'safe default collision policy missing'
+require_source 'file_op_cancel' "$APP" 'file-operation cancellation state missing'
+require_source 'fn reopen_closed_tab\(' "$APP" 'closed-tab recovery missing'
+require_source 'PlatformCommand::BeginWindowMove' "$APP" 'native window interaction command path missing'
+require_source 'open_new_window' "$APP" 'new-window behavior missing'
+require_source 'delete_targets' "$APP" 'permanent-delete confirmation state missing'
+require_source 'empty_trash_confirm' "$APP" 'empty-trash confirmation state missing'
+require_source 'selection_anchor' "$APP" 'shift-range selection anchor missing'
 
 # Native Wayland/Vulkan + input contracts.
 require_source 'Backends::VULKAN' "$PLATFORM" 'Vulkan-only backend contract missing'
