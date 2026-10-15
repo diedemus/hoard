@@ -4427,6 +4427,7 @@ impl HoardApp {
                 ui.id().with(("details-header", column.key())),
                 Sense::click(),
             );
+            response.context_menu(|ui| self.columns_context_menu(ui));
             if response.clicked() {
                 self.sort_by(column.sort_column(), true);
             }
@@ -4466,6 +4467,7 @@ impl HoardApp {
                     Sense::drag(),
                 );
 
+                grip.context_menu(|ui| self.columns_context_menu(ui));
                 if grip.hovered() || grip.dragged() {
                     ui.ctx().set_cursor_icon(egui::CursorIcon::ResizeHorizontal);
                 }
