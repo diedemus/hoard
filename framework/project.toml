@@ -34,7 +34,9 @@ max_total_size_mb = 512
 
 [cache]
 max_project_gb = 12.0
+min_free_gb = 40.0
 
 [retention]
-failed_worktrees = 2
+failed_worktrees = 0
+max_failed_worktree_mb = 256
 successful_worktrees = 0
