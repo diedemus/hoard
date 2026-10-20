@@ -5,12 +5,44 @@ cd "$ROOT"
 fail(){ echo "HOARD API3 SOURCE CONTRACT FAILED: $*" >&2; exit 1; }
 [[ "$(tr -d '[:space:]' < framework/required-api)" == 3 ]] || fail 'framework API must be 3'
 [[ "$(tr -d '[:space:]' < validator/required-api)" == 1 ]] || fail 'validator API must be 1'
-grep -F 'git+https://github.com/diedemus/stable-build-framework.git#v0.5.3' framework/canonical-source >/dev/null || fail 'framework release pin mismatch'
-grep -F 'tag = "v0.5.3"' Cargo.toml >/dev/null || fail 'shared core Git release pin missing'
+# Source pin, Cargo manifest, resolved crates, and the actual canonical framework
+# snapshot must agree. Do not hard-code an obsolete framework release here.
+python3 - <<'PY' || fail 'framework release pin/provenance mismatch'
+import json
+import re
+import tomllib
+from pathlib import Path
+
+repository = 'https://github.com/diedemus/stable-build-framework.git'
+prefix = 'git+' + repository + '#'
+configured = Path('framework/canonical-source').read_text().strip()
+assert configured.startswith(prefix), 'canonical framework source URL'
+tag = configured.removeprefix(prefix)
+assert re.fullmatch(r'v[0-9]+\.[0-9]+\.[0-9]+', tag), 'canonical semver tag'
+version = tag[1:]
+
+snapshot_lock = json.loads(Path('.framework/framework-lock.json').read_text())
+assert snapshot_lock['framework_api_version'] == 3, 'framework API 3'
+assert snapshot_lock['validator_api_version'] == 1, 'validator API 1'
+assert snapshot_lock['stable_build_framework_version'] == version, 'snapshot version'
+assert snapshot_lock['canonical_ref'] == tag, 'snapshot canonical Git ref'
+commit = snapshot_lock['canonical_source_revision']
+assert isinstance(commit, str) and re.fullmatch(r'[a-f0-9]{40}', commit), 'snapshot commit'
+expected_source = f'git+{repository}?tag={tag}#{commit}'
+
+manifest = tomllib.loads(Path('Cargo.toml').read_text())
+workspace = manifest['workspace']['dependencies']
+lockfile = tomllib.loads(Path('Cargo.lock').read_text())
+for name in ('stable-app-core', 'stable-ui'):
+    dependency = workspace[name]
+    assert dependency['git'] == repository and dependency['tag'] == tag, f'{name} manifest pin'
+    packages = [p for p in lockfile['package'] if p['name'] == name]
+    assert len(packages) == 1, f'{name} resolved package count'
+    assert packages[0]['version'] == version, f'{name} locked version'
+    assert packages[0]['source'] == expected_source, f'{name} locked Git revision'
+PY
 grep -F 'egui.workspace = true' crates/hoard-core/Cargo.toml >/dev/null || fail 'hoard-core uses egui thumbnail types without direct egui dependency'
-grep -F 'name = "stable-app-core"' Cargo.lock >/dev/null || fail 'stable-app-core missing from committed lock'
-grep -F 'name = "stable-ui"' Cargo.lock >/dev/null || fail 'stable-ui missing from committed lock'
-grep -F '0e2a886faf30bd1660c233fb4d4d9b0b161bf2f3' Cargo.lock >/dev/null || fail 'shared core lock provenance mismatch'
+
 for legacy in framework/validation.toml .adaptive-validation.toml release-gate.sh build.sh build-install.sh src; do
   [[ ! -e "$legacy" ]] || fail "obsolete API2/root architecture remains: $legacy"
 done

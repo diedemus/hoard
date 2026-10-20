@@ -1,0 +1,115 @@
+name: Framework v0.5.4 migration lock
+on:
+  push:
+    branches: [dev/v054-storage-migration, dev/storage-governance-r1]
+  pull_request:
+    paths:
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'framework/canonical-source'
+      - 'framework/project.toml'
+      - '.github/workflows/framework-v054-lock.yml'
+jobs:
+  locked-provenance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use project Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: '1.99.0'
+      - name: Check v0.5.4 identity and committed lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fx 'git+https://github.com/diedemus/stable-build-framework.git#v0.5.4' framework/canonical-source
+          python3 - <<'PY'
+          from pathlib import Path
+          import tomllib
+          fw='https://github.com/diedemus/stable-build-framework.git'
+          cargo=tomllib.loads(Path('Cargo.toml').read_text())
+          lock=tomllib.loads(Path('Cargo.lock').read_text())
+          deps=cargo['workspace']['dependencies']
+          pkgs={p['name']:p for p in lock['package'] if p['name'] in ('stable-app-core','stable-ui')}
+          for key in ('stable-app-core','stable-ui'):
+              assert deps[key]['git']==fw and deps[key]['tag']=='v0.5.4', (key,deps[key])
+              assert pkgs[key]['version']=='0.5.4', (key,pkgs[key])
+              assert pkgs[key]['source']==('git+'+fw+'?tag=v0.5.4#086c52afce7359981c9468aaa919841b28cf98e0'),pkgs[key]
+          PY
+          echo FRAMEWORK_V054_STATIC_PROVENANCE_PASS
+      - name: Regression-test native Hoard framework pin contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n scripts/api3-source-contract.sh
+          python3 - <<'PY'
+          from pathlib import Path
+          import json, re, subprocess, sys, tempfile, shutil
+          source = Path('scripts/api3-source-contract.sh').read_text()
+          match = re.search(r"python3 - <<'PY' \|\| fail 'framework release pin/provenance mismatch'\n(.*?)\nPY\n", source, re.S)
+          assert match is not None, 'native validator provenance contract missing'
+          script = match.group(1)
+          with tempfile.TemporaryDirectory() as folder:
+              root = Path(folder)
+              (root/'framework').mkdir()
+              (root/'.framework').mkdir()
+              for src, dst in [('Cargo.toml','Cargo.toml'), ('Cargo.lock','Cargo.lock'), ('framework/canonical-source','framework/canonical-source')]:
+                  shutil.copy2(src, root/dst)
+              lock = {
+                  'stable_build_framework_version': '0.5.4',
+                  'framework_api_version': 3, 'validator_api_version': 1,
+                  'canonical_ref': 'v0.5.4',
+                  'canonical_source_revision': '086c52afce7359981c9468aaa919841b28cf98e0',
+              }
+              lockpath = root/'.framework/framework-lock.json'
+              def check(expected):
+                  result = subprocess.run([sys.executable, '-c', script], cwd=root, capture_output=True, text=True)
+                  assert (result.returncode == 0) == expected, result.stderr
+              lockpath.write_text(json.dumps(lock))
+              check(True)
+              lock['canonical_source_revision'] = '0'*40
+              lockpath.write_text(json.dumps(lock))
+              check(False)
+              lock['canonical_source_revision'] = '086c52afce7359981c9468aaa919841b28cf98e0'
+              lock['stable_build_framework_version'] = '0.5.3'
+              lockpath.write_text(json.dumps(lock))
+              check(False)
+              lock['stable_build_framework_version'] = '0.5.4'
+              lockpath.write_text(json.dumps(lock))
+              manifest = root/'Cargo.toml'
+              original = manifest.read_text()
+              assert original.count('tag = "v0.5.4"') == 2
+              manifest.write_text(original.replace('tag = "v0.5.4"', 'tag = "v0.5.3"'))
+              check(False)
+          print('HOARD_CANONICAL_FRAMEWORK_PIN_CONTRACT_PASSED')
+          PY
+      - name: Verify private framework deploy credential exists
+        shell: bash
+        env:
+          FRAMEWORK_KEY: ${{ secrets.STABLE_BUILD_FRAMEWORK_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$FRAMEWORK_KEY" ]]; then
+            echo 'Missing STABLE_BUILD_FRAMEWORK_DEPLOY_KEY; configure a read-only deploy key for the private framework repository.' >&2
+            exit 1
+          fi
+      - name: Verify framework v0.5.4 provenance with authenticated Cargo
+        shell: bash
+        env:
+          FRAMEWORK_KEY: ${{ secrets.STABLE_BUILD_FRAMEWORK_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+          eval "$(ssh-agent -s)" >/dev/null
+          trap 'ssh-agent -k >/dev/null 2>&1 || true' EXIT
+          ssh-add - <<< "$FRAMEWORK_KEY" >/dev/null 2>&1
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' 'github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl' > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/known_hosts"
+          git config --global url."ssh://git@github.com/diedemus/stable-build-framework.git".insteadOf "https://github.com/diedemus/stable-build-framework.git"
+          export CARGO_NET_GIT_FETCH_WITH_CLI=true
+          export GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=yes'
+          git ls-remote https://github.com/diedemus/stable-build-framework.git refs/tags/v0.5.4 | grep -q refs/tags/v0.5.4
+          cargo metadata --locked --format-version 1 > /dev/null
+          test -z "$(git status --porcelain)"
+          echo FRAMEWORK_V054_AUTHENTICATED_LOCKED_PROVENANCE_PASS

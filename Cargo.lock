@@ -2437,13 +2437,13 @@ dependencies = [
 
 [[package]]
 name = "stable-app-core"
-version = "0.5.3"
-source = "git+https://github.com/diedemus/stable-build-framework.git?tag=v0.5.3#0e2a886faf30bd1660c233fb4d4d9b0b161bf2f3"
+version = "0.5.4"
+source = "git+https://github.com/diedemus/stable-build-framework.git?tag=v0.5.4#086c52afce7359981c9468aaa919841b28cf98e0"
 
 [[package]]
 name = "stable-ui"
-version = "0.5.3"
-source = "git+https://github.com/diedemus/stable-build-framework.git?tag=v0.5.3#0e2a886faf30bd1660c233fb4d4d9b0b161bf2f3"
+version = "0.5.4"
+source = "git+https://github.com/diedemus/stable-build-framework.git?tag=v0.5.4#086c52afce7359981c9468aaa919841b28cf98e0"
 
 [[package]]
 name = "stable_deref_trait"
