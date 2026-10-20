@@ -18,7 +18,7 @@ prefix = 'git+' + repository + '#'
 configured = Path('framework/canonical-source').read_text().strip()
 assert configured.startswith(prefix), 'canonical framework source URL'
 tag = configured.removeprefix(prefix)
-assert re.fullmatch(r'v[0-9]+\\.[0-9]+\\.[0-9]+', tag), 'canonical semver tag'
+assert re.fullmatch(r'v[0-9]+\.[0-9]+\.[0-9]+', tag), 'canonical semver tag'
 version = tag[1:]
 
 snapshot_lock = json.loads(Path('.framework/framework-lock.json').read_text())
