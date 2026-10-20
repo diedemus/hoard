@@ -1,0 +1,42 @@
+name: Framework v0.5.4 migration lock
+on:
+  push:
+    branches: [dev/v054-storage-migration, dev/storage-governance-r1]
+  pull_request:
+    paths:
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'framework/canonical-source'
+      - 'framework/project.toml'
+      - '.github/workflows/framework-v054-lock.yml'
+jobs:
+  locked-provenance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use project Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: '1.99.0'
+      - name: Check v0.5.4 identity and committed lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fx 'git+https://github.com/diedemus/stable-build-framework.git#v0.5.4' framework/canonical-source
+          python3 - <<'PY'
+          from pathlib import Path
+          import tomllib
+          fw='https://github.com/diedemus/stable-build-framework.git'
+          cargo=tomllib.loads(Path('Cargo.toml').read_text())
+          lock=tomllib.loads(Path('Cargo.lock').read_text())
+          deps=cargo['workspace']['dependencies']
+          pkgs={p['name']:p for p in lock['package'] if p['name'] in ('stable-app-core','stable-ui')}
+          for key in ('stable-app-core','stable-ui'):
+              assert deps[key]['git']==fw and deps[key]['tag']=='v0.5.4', (key,deps[key])
+              assert pkgs[key]['version']=='0.5.4', (key,pkgs[key])
+              assert pkgs[key]['source']==('git+'+fw+'?tag=v0.5.4#086c52afce7359981c9468aaa919841b28cf98e0'),pkgs[key]
+          PY
+          cargo metadata --locked --format-version 1 > /dev/null
+          test -z "$(git status --porcelain)"
+          echo FRAMEWORK_V054_LOCKED_PROVENANCE_PASS
