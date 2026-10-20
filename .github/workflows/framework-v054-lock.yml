@@ -19,6 +19,35 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: '1.99.0'
+      - name: Verify private framework deploy credential exists
+        shell: bash
+        env:
+          FRAMEWORK_KEY: ${{ secrets.STABLE_BUILD_FRAMEWORK_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$FRAMEWORK_KEY" ]]; then
+            echo 'Missing STABLE_BUILD_FRAMEWORK_DEPLOY_KEY; configure a read-only deploy key for the private framework repository.' >&2
+            exit 1
+          fi
+      - name: Verify framework v0.5.4 provenance with authenticated Cargo
+        shell: bash
+        env:
+          FRAMEWORK_KEY: ${{ secrets.STABLE_BUILD_FRAMEWORK_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+          eval "$(ssh-agent -s)" >/dev/null
+          trap 'ssh-agent -k >/dev/null 2>&1 || true' EXIT
+          ssh-add - <<< "$FRAMEWORK_KEY" >/dev/null 2>&1
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' 'github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl' > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/known_hosts"
+          git config --global url."ssh://git@github.com/diedemus/stable-build-framework.git".insteadOf "https://github.com/diedemus/stable-build-framework.git"
+          export CARGO_NET_GIT_FETCH_WITH_CLI=true
+          export GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=yes'
+          git ls-remote https://github.com/diedemus/stable-build-framework.git refs/tags/v0.5.4 | grep -q refs/tags/v0.5.4
+          cargo metadata --locked --format-version 1 > /dev/null
+          test -z "$(git status --porcelain)"
+          echo FRAMEWORK_V054_AUTHENTICATED_LOCKED_PROVENANCE_PASS
       - name: Check v0.5.4 identity and committed lock
         shell: bash
         run: |
@@ -37,6 +66,4 @@ jobs:
               assert pkgs[key]['version']=='0.5.4', (key,pkgs[key])
               assert pkgs[key]['source']==('git+'+fw+'?tag=v0.5.4#086c52afce7359981c9468aaa919841b28cf98e0'),pkgs[key]
           PY
-          cargo metadata --locked --format-version 1 > /dev/null
-          test -z "$(git status --porcelain)"
-          echo FRAMEWORK_V054_LOCKED_PROVENANCE_PASS
+          echo FRAMEWORK_V054_STATIC_PROVENANCE_PASS
