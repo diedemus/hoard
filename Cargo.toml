@@ -8,8 +8,8 @@ edition = "2024"
 license = "MIT"
 
 [workspace.dependencies]
-stable-app-core = { git = "https://github.com/diedemus/stable-build-framework.git", tag = "v0.5.3" }
-stable-ui = { git = "https://github.com/diedemus/stable-build-framework.git", tag = "v0.5.3" }
+stable-app-core = { git = "https://github.com/diedemus/stable-build-framework.git", tag = "v0.5.8" }
+stable-ui = { git = "https://github.com/diedemus/stable-build-framework.git", tag = "v0.5.8" }
 anyhow = "*"
 ashpd = { version = "*", default-features = false, features = ["tokio", "open_uri"] }
 chrono = { version = "*", default-features = false, features = ["clock"] }
